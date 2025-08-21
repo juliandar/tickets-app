@@ -7,3 +7,5 @@ export interface Ticket {
   status: TicketStatus;
   assignedTo: string;
 }
+
+export type TicketForm = Omit<Ticket, "id">;
