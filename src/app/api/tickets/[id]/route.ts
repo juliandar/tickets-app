@@ -11,7 +11,7 @@ export async function GET(_: any, { params }: Params) {
     const { id } = await params;
     const ticket = await prisma.ticket.findFirst({
       where: {
-        id: id,
+        id,
       },
     });
     return NextResponse.json({ ticket });
@@ -25,11 +25,11 @@ export async function PUT(request: NextRequest, { params }: Params) {
     const { id } = await params;
     const body = await request.json();
     const { title, description, assignedTo, status } = ticketSchema.parse(body);
-    const ticket = await prisma.ticket.update({
+    await prisma.ticket.update({
       data: { title, description, assignedTo, status },
       where: { id: id },
     });
-    return NextResponse.json({ ticket });
+    return NextResponse.json({ message: "Ticket updated correctly!" });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

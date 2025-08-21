@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { Ticket, TicketStatus } from "@/app/tickets/tickets.interface";
 import Link from "next/link";
-import { createTicket } from "@/app/tickets/tickets.api";
+import { createTicket, updateTicket } from "@/app/tickets/tickets.api";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -40,12 +40,22 @@ export const TicketForm = ({ ticket }: { ticket?: Ticket }) => {
   };
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      const response = await createTicket({
-        assignedTo: data.assignedTo,
-        status: data.status,
-        title: data.title,
-        description: data.description,
-      });
+      let response: any;
+      if (ticket?.id) {
+        response = await updateTicket(ticket.id, {
+          assignedTo: data.assignedTo,
+          status: data.status,
+          title: data.title,
+          description: data.description,
+        });
+      } else {
+        response = await createTicket({
+          assignedTo: data.assignedTo,
+          status: data.status,
+          title: data.title,
+          description: data.description,
+        });
+      }
       router.push("/tickets");
       toast(response.message);
     } catch (error) {}
@@ -68,11 +78,11 @@ export const TicketForm = ({ ticket }: { ticket?: Ticket }) => {
         ></Input>
       </div>
       <div>
-        <Label className="block mb-2" htmlFor="status">
+        <Label className="block mb-2" htmlFor="assigned">
           Status
         </Label>
-        <Select onValueChange={handleChange}>
-          <SelectTrigger>
+        <Select defaultValue={ticket?.status} onValueChange={handleChange}>
+          <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -93,7 +103,9 @@ export const TicketForm = ({ ticket }: { ticket?: Ticket }) => {
         />
       </div>
       <div className="flex justify-between gap-4">
-        <Button type="submit">Create Ticket</Button>
+        <Button type="submit">
+          {ticket?.id ? "Update Ticket" : "Create Ticket"}
+        </Button>
 
         <Button asChild variant="secondary">
           <Link href={"/tickets"}>Back</Link>
